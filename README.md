@@ -1,6 +1,6 @@
 # Temporally aperiodic SSMs
 
-This package computes non-autonomous spectral submanifolds for four mechanical example situtaions subjected to chaotic forcing. 
+This package computes non-autonomous aperiodic spectral submanifolds and their corresponding reduced dynamics for four mechanical example situtaions subjected to chaotic shaking. 
 
 The theory, computational methodology and further details on the examples can be found in the following article:
 
