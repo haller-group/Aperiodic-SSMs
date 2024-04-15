@@ -20,7 +20,7 @@ SP_Traj1 = SP_Traj.';
 ind = 1;
 SolutionA = Net_Sol;
 nssm = 20;
-for j = 1:1:2500 %1:1 %3500:3500 %500:500 %1:20:10000-tl % 1:100:70000%:1200%(max(size(t_sol))-tl)
+for j = 1:1:2500 %200:200%3500:3500 %1:1 %1:1:2500 %1:1 %3500:3500 %500:500 %1:20:10000-tl % 1:100:70000%:1200%(max(size(t_sol))-tl)
 i = 1+0;
      clf
 % subplot(2, 2, [1 3])
@@ -29,6 +29,7 @@ i = 1+0;
      [RHO,Theta]=meshgrid(linspace(0,2,nssm),linspace(0,2*pi,nssm));
      Z = RHO.*exp(1i*Theta);
      x = linspace(-1,1,nssm);
+%      y = linspace(-1,1,nssm);
      [X,Y]=meshgrid(x);
      Z = RHO.*exp(1i*Theta);
      Z = X+1i*Y;
@@ -231,18 +232,19 @@ i = 1+0;
      hold on
       
     xl = xlabel('$x_c \,[$m$]$','Interpreter','latex');
-    xl.Position = [0.2830+4 -0.6436 -1.3701-0.2];
+    xl.Position = [12.5945 0.4649 -0.8820];
     xl.HorizontalAlignment = 'center';
     xticks([-10 0 10])
     yl = ylabel('$\dot{x}_c \,[$m/s$]$','Interpreter','latex');
-    yl.Position = [-10.0940-0.2 -0.0183 -1.2803+0.3];
+    yl.Position = [-6.0494 0.8585 -0.7246];
     yticks([-1 0 1])
-     zlabel('$q_2 \,[$m$]$','Interpreter','latex');
+     zl = zlabel('$q_2 \,[$m$]$','Interpreter','latex');
+     zl.Position = [-11.3834 1.3175 0.0584];
      zticks([-0.5 0 0.5])
 %        title('Adiabatic SSM reduction, $\epsilon = 0.008$','Interpreter','latex')
 %          legend('SSM - $W_{\epsilon}(x_{\epsilon}(\alpha))$ $O(\epsilon^{k_1} \mathbf{u}^{\mathbf{k}_2}, k_1 + |k_2| = 3)$','$O(\epsilon^3)$ anchor trajectory','Full order model','Reduced order model','$O(\epsilon^3)$ anchor trajectory [$x_{\epsilon}(\alpha = \epsilon t)$]','Interpreter','latex','location','northwest')
-     lk =  legend([h flm roml anl],'SSM - $W_{\epsilon}(x_{\epsilon}(\alpha))$ $O(\epsilon^{k_1} \mathbf{u}^{\mathbf{k}_2}, k_1 + |k_2| = 3)$','Full order model','Reduced order model','Chaotic anchor trajectory [$x_{\epsilon}(\alpha = \epsilon t)$]','Interpreter','latex','location','northwest')
- lk.Position = [0.0023 0.6272 0.5865 0.1986];
+%      lk =  legend([h flm roml anl],'SSM - $W_{\epsilon}(x_{\epsilon}(\alpha))$ $O(\epsilon^{k_1} \mathbf{u}^{\mathbf{k}_2}, k_1 + |k_2| = 3)$','Full order model','Reduced order model','Chaotic anchor trajectory [$x_{\epsilon}(\alpha = \epsilon t)$]','Interpreter','latex','location','northwest')
+%  lk.Position = [0.1559 0.7391 0.5865 0.1986];
     string = strcat('$\alpha = $',num2str(round(epsilon*t_sol(j+tl),2),'%4.2f' ),', $\epsilon = 0.008$');
     if (round(epsilon*t_sol(j+tl),2)) >=8
      string = strcat('{\color{blue}\alpha = ',num2str(round(epsilon*t_sol(j+tl),2),'%4.2f' ),',}\epsilon = 0.008');
@@ -251,13 +253,17 @@ i = 1+0;
      title(string,'Interpreter','latex');
     end   
    axis([-10,11,-1.2,1.2,-0.5,0.6])
-   view(-79,7)
+   view(-35,17)
     grid on
     box on
-           daspect([1,1,1])
+%            daspect([1,1,1])
 %  axis([-0.2,0.2,-0.2,0.2,-0.01,0.01])
 set(gcf,'color','white')
     figssm = gcf;
+set(hFig, 'Units' , 'Inches' );
+pos = get(hFig, 'Position' );
+set(hFig, 'PaperPositionMode' , 'Auto' , 'PaperUnits' , 'Inches' , 'PaperSize' ,[pos(3), pos(4)])
+set(gcf,'Renderer','painters')
 
 movieVector(ind) = getframe(hFig);
     
@@ -265,7 +271,7 @@ movieVector(ind) = getframe(hFig);
 
 end
 
-% myWriter = VideoWriter('SSM_Shaking_Cart_adiabatic_faster','MPEG-4');
+% myWriter = VideoWriter('SSM_Shaking_Cart_adiabatic','MPEG-4');
 % % myWriter.FrameRate = 40;
 % % 
 % % open(myWriter);

@@ -31,7 +31,7 @@ zo = [1.5*exp(-1i*pi/2),1.5*exp(1i*pi/2),2.5*exp(-1i*pi/2),2.5*exp(1i*pi/2),1*ex
 for ind = 1:6
 epsilon = 0.008;
 ctspan = linspace(0,6,4000)/epsilon;
-ROM=@(t,z) rom_temp_model_adiabatic(t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_01,xi_11,xi_21,Valpha,V,A,Force_Lorenz,Dalpha,gamma,epsilon);
+ROM=@(t,z) rom_temp_model_adiabatic(t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_01,xi_11,xi_21,Valpha,ValphaD,V,A,Force_Lorenz,Dalpha,gamma,epsilon);
 q0 = zo(ind);
 [y0,model0,Net_Sol0] = compute_SSM_phy(XI_0,XI_1,XI_2,XI_3,ctspan(1),gamma,q0,epsilon,SSM_Coeff_A_2,SSM_Coeff_A_1,Valpha,V,A,Force_Lorenz,Dalpha);
 

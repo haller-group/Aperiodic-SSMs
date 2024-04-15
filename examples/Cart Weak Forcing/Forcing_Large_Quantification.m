@@ -1,3 +1,4 @@
+clear all
 m1 = 1;
 m2 = 1;
 Mf = 4;
@@ -10,7 +11,41 @@ MTT = m1 + m2 + Mf;
 K = -[-2*k - kf*((m1 + m2)/MTT)^2, -k - kf*m2*(m1 + m2)/MTT^2, kf*(m1+m2)/MTT; -k - kf*m2*(m1 + m2)/MTT^2, -2*k - kf*m2^2/(MTT^2), kf*m2/MTT; (m1 + m2)/MTT *kf, m2/MTT*kf, -kf];
 C = -[-c - cf*((m1 + m2)/MTT)^2, -c - cf*m2*(m1 + m2)/MTT^2, cf*(m1+m2)/MTT; -c - cf*m2*(m1 + m2)/MTT^2, -2*c - cf*m2^2/(MTT^2), cf*m2/MTT; (m1 + m2)/MTT *cf, m2/MTT*cf, -cf];
 M =  [Mf*(m1 + m2)/MTT, m2*Mf/MTT, 0; m2*Mf/MTT, m2*(m1 + Mf)/MTT, 0; 0,0, MTT];
+
+subs2 = [1 1 1 1];
+n = 3;
+F3 = sptensor(subs2, gamma, [n,n,n,n]);
+F2 = sptensor([n,n,n]);
+fnl = {F2,F3};
+
 F_I_net = [];
+
+DS = DynamicalSystem();
+set(DS,'M',M,'C',C,'K',K,'fnl',fnl);
+set(DS.Options,'Emax',6,'Nmax',10,'notation','multiindex')
+[V,D,W] = DS.linear_spectral_analysis();
+S = SSM(DS);
+resonant_modes = [1 2];
+Acheck = V*diag(D)*inv(V);
+VI = inv(V);
+l1 = D(1);
+l1c = conj(D(1));
+l2 = D(3);
+l2c = conj(D(3));
+l3 = D(5);
+l3c = conj(D(5));
+
+
+[h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
+    ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
+    ] = Auto_Coeffs(gamma,l2,l3,l1c,l1);
+load('Coeff_SSM_Exact_O1.mat','H_Coeff1','F_Coeff1');
+load('Coeff_SSM_Exact_O2.mat','H_Coeff2','F_Coeff2');
+load('Xi_Sol1.mat','xi_sol1')
+load('Solution_3.mat','xi_full_eval3')
+load('Solution_1.mat','xi_full_eval')
+load('Solution_5.mat','xi_full_eval5')
+load('Xi_Sol3.mat','xi_sol3')
 
 
 % fig = figure

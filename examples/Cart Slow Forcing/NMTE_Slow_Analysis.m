@@ -11,7 +11,7 @@ for indf = 1:3
 for ind = 1:6
 
 ctspan = linspace(0,6,100000)/epsilon;
-ROM=@(t,z) rom_temp_model_adiabatic_order(order,t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_01,xi_11,xi_21,Valpha,V,A,Force_Lorenz,Dalpha,gamma,epsilon);
+ROM=@(t,z) rom_temp_model_adiabatic_order(order,t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_01,xi_11,xi_21,Valpha,ValphaD,V,A,Force_Lorenz,Dalpha,gamma,epsilon);
 q0 = zo(ind);
 [y0,model0,Net_Sol0] = compute_SSM_phy_Order(order,XI_0,XI_1,XI_2,XI_3,ctspan(1),gamma,q0,epsilon,SSM_Coeff_A_2,SSM_Coeff_A_1,Valpha,V,A,Force_Lorenz,Dalpha);
 

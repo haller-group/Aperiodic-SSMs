@@ -82,7 +82,7 @@ stop_index = 500;
 
 ctspanR = ctspan(1:stop_index);
 
-ROM=@(t,z) rom_temp_model_adiabatic_rail(t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_20,xi_21,xi_41,xi_22,xi_42,Valpha,V,A,Force_Lorenz,Dalpha,epsilon,a,g,c,cf,Mf,m,k,Sc);
+ROM=@(t,z) rom_temp_model_adiabatic_rail(t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_20,xi_21,xi_41,xi_22,xi_42,Valpha,ValphaD,V,A,Force_Lorenz,Dalpha,epsilon,a,g,c,cf,Mf,m,k,Sc);
 
 q0 = zo(ind);
 [y0,model0,Net_Sol0] = compute_SSM_phy(XI_0U,XI_1U,XI_2U,XI_3U,ctspan(1),q0,epsilon,SSM_Coeff_A_2,SSM_Coeff_A_1,Valpha,V,A,Force_Lorenz,Dalpha);

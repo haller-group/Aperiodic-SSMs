@@ -36,6 +36,9 @@ nssm = 30;
      [X,Y]=meshgrid(x);
 %      Z = RHO.*exp(1i*Theta);
      Z = X+1i*Y;
+      Net1 = zeros(nssm,nssm);
+Net2 = zeros(nssm,nssm);
+
      Ratio_Net = zeros(nssm,nssm);
 for ind = 1:nssm
     for indk = 1:nssm
@@ -54,7 +57,7 @@ IC = [real(q0);imag(q0)];
 % [y,modal,Net_Sol] = compute_SSM_phy(XI_0,XI_1,XI_2,XI_3,t_sol,gamma,(ROM_sol(:,1)+1i*ROM_sol(:,2)).',epsilon,SSM_Coeff_A_2,SSM_Coeff_A_1,Valpha,V,A,Force_Lorenz,Dalpha);
 % 
 
-FullS = @(t,y) full_system0(t,y,0,Force_Lorenz);
+FullS = @(t,y) full_system(t,y,0,Force_Lorenz);
 tic
 IC =y0;
 [tSP,SP_Traj] = ode45(FullS,ctspan,IC);
@@ -66,7 +69,7 @@ yT = SP_Traj.';
 % F_net = sqrt(sum(F_auto.^2));
 % Ratio_Net(ind,indk) = epsilon./(trapz(tSP,F_net/max(F_net))/(max(tSP)));
 
-epsilon = 0.01;
+epsilon = 0.008;
 F_an = (abs(Force_Lorenz(epsilon*tSP))).';
 % F_an = trapz(tSP,F_an)/(max(tSP)*mean(F_an));
 F_spring = K*[yT(1,:);yT(2,:);yT(3,:)];
@@ -78,6 +81,9 @@ F_net = sqrt(sum(F_total.^2));
 [dXdF_net, Xtrunc_net,tSp_red] = ftd(F_net, tSP.');
 [dXdF_an, Xtrunc_an,tSp_red] = ftd(F_an, tSP.');
 F_I_net = [F_I_net;trapz(tSP,F_an./F_net)/(max(tSP))];
+
+Net1(ind,indk) = trapz(tSp_red,abs(dXdF_an.'))/(max(tSP));
+ Net2(ind,indk) = (trapz(tSp_red,abs(dXdF_net.'))/(max(tSP)));
 
 Ratio_Net(ind,indk) = trapz(tSp_red,abs(dXdF_an.'))/(max(tSP))./(trapz(tSp_red,abs(dXdF_net.'))/(max(tSP)));
 
@@ -128,10 +134,10 @@ end
 fig = figure 
 % flag = [Ratio_Net > 100];
 % Ratio_Net(flag)= NaN;
-
+bp = mean( Net1(:))./mean( Net2(:));
 P = pcolor(X,Y,Ratio_Net);
 
-bp = mean(Ratio_Net(:));
+% bp = mean(Ratio_Net(:));
 P.EdgeColor = 'none';
 colormap copper
 colorbar 

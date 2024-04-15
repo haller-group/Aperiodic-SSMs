@@ -45,6 +45,9 @@ nssm = 30;
 %      Z = RHO.*exp(1i*Theta);
 %      Z = X+1i*Y;
      Ratio_Net = zeros(nssm,nssm);
+     Net1 = zeros(nssm,nssm);
+Net2 = zeros(nssm,nssm);
+
 for ind = 1:nssm
     for indk = 1:nssm
 epsilon = 1;
@@ -92,6 +95,8 @@ F_nonlinear = [4*g*m*y(1,:).^3/scale + 16*m*a^4*y(1,:).*y(3,:).^2/scale^2;0*y(1,
 F_total = F_spring + F_damper + F_nonlinear;
 F_net = sqrt(sum(F_total.^2));
 F_I_net = [F_I_net;max(F_net)];
+Net1(ind,indk) = trapz(tSP,F_an)/(max(tSP));
+ Net2(ind,indk) = (trapz(tSP,F_net)/(max(tSP)));
 
 Ratio_Net(ind,indk) = trapz(tSP,F_an)/(max(tSP))./(trapz(tSP,F_net)/(max(tSP)));
 
@@ -136,7 +141,8 @@ end
 % fig.PaperSize = fig.Position(3:4);
 % fig.Units = origUnits;
 % exportgraphics(fig, 'e008xcdot_slow.pdf');
-bp = mean(Ratio_Net(:));
+% bp = mean(Ratio_Net(:));
+bp = mean( Net1(:))./mean( Net2(:));
 NMTEavg = sum(NMTET)/6;
 factor = epsilon/max(F_I_net);
 fig = figure

@@ -17,7 +17,7 @@ k = 1;
 a = 0.5;
 g = 9.8;
 m = 1;
-M = 4;
+Mf = 4;
 cf = 0.3;
 scale = 10*a^3;%2*a^3;
 Sc = scale;
@@ -51,10 +51,13 @@ nssm = 20;
 %      Z = RHO.*exp(1i*Theta);
      Z = X+1i*Y;
      Ratio_Net = zeros(nssm,nssm);
+           Net1 = zeros(nssm,nssm);
+Net2 = zeros(nssm,nssm);
+
 for ind = 1:nssm
     for indk = 1:nssm
 
-epsilon = 0.01;
+epsilon = 0.008;
 
 alphaT = linspace(0,6,10000);
 
@@ -67,6 +70,7 @@ ctspan = alphaT/(epsilon);
 ROM=@(t,z) rom_temp_model_adiabatic_rail(t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_20,xi_21,xi_41,xi_22,xi_42,Valpha,V,A,Force_Lorenz,Dalpha,epsilon,a,g,c,cf,Mf,m,k,Sc);
 
 q0 = Z(ind,indk);
+epsilon = 0.01;
 [y0,model0,Net_Sol0] = compute_SSM_phy(XI_0U,XI_1U,XI_2U,XI_3U,ctspan(1),q0,epsilon,SSM_Coeff_A_2,SSM_Coeff_A_1,Valpha,V,A,Force_Lorenz,Dalpha);
 
 % IC = [real(q0);imag(q0)];
@@ -98,6 +102,7 @@ toc
 % [tSP,SP_Traj] = ode45(FullS,ctspan,IC);
 % toc
 
+
 y = Full_Traj.';
 F_an = (abs(Force_Lorenz(epsilon*tSP))).';
 % F_an = trapz(tSP,F_an)/(max(tSP)*mean(F_an));
@@ -110,6 +115,8 @@ F_net = sqrt(sum(F_total.^2));
 [dXdF_net, Xtrunc_net,tSp_red] = ftd(F_net, tSP.');
 [dXdF_an, Xtrunc_an,tSp_red] = ftd(F_an, tSP.');
 F_I_net = [F_I_net;trapz(tSP,F_an./F_net)/(max(tSP))];
+Net1(ind,indk) = trapz(tSp_red,abs(dXdF_an.'))/(max(tSP));
+ Net2(ind,indk) = (trapz(tSp_red,abs(dXdF_net.'))/(max(tSP)));
 
 Ratio_Net(ind,indk) = trapz(tSp_red,abs(dXdF_an.'))/(max(tSP))./(trapz(tSp_red,abs(dXdF_net.'))/(max(tSP)));
 
@@ -155,22 +162,24 @@ end
 % fig.Units = origUnits;
 % exportgraphics(fig, 'e008xcdot_slow.pdf');
 
-bp = mean(Ratio_Net(:));
+% bp = mean(Ratio_Net(:));
+bp = mean( Net1(:))./mean( Net2(:));
+
 NMTEavg = sum(NMTET)/6;
 
-fig = figure
-P = pcolor(X,Y,Ratio_Net);
-P.EdgeColor = 'none';
-colormap copper
-colorbar 
-xlabel('$u_1$','Interpreter','latex');
-ylabel('$u_2$','Interpreter','latex');
-
-title_string = strcat('$\displaystyle \frac{\overline{|\frac{d}{dt}|F_{ext}|_{t_0}^{t_f}(x_0)|}}{\overline{|\frac{d}{dt}|F_{int}|_{t_0}^{t_f}(x_0)|}}$, $\epsilon = ',num2str(epsilon),'$');
-
-
-title(title_string,'Interpreter','latex')
-
-figure 
-contour(X,Y,Ratio_Net)
-colorbar
+% fig = figure
+% P = pcolor(X,Y,Ratio_Net);
+% P.EdgeColor = 'none';
+% colormap copper
+% colorbar 
+% xlabel('$u_1$','Interpreter','latex');
+% ylabel('$u_2$','Interpreter','latex');
+% 
+% title_string = strcat('$\displaystyle \frac{\overline{|\frac{d}{dt}|F_{ext}|_{t_0}^{t_f}(x_0)|}}{\overline{|\frac{d}{dt}|F_{int}|_{t_0}^{t_f}(x_0)|}}$, $\epsilon = ',num2str(epsilon),'$');
+% 
+% 
+% title(title_string,'Interpreter','latex')
+% 
+% figure 
+% contour(X,Y,Ratio_Net)
+% colorbar

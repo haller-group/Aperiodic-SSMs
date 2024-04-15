@@ -21,7 +21,7 @@ fontsize(fig, 20, "points")
 set(gcf,'color','w');
 box on
 grid on ;
-% axis([0,750,-2,3])
+axis([0,750,-2,3])
 ax1 = gca;
 ax2 = axes( 'Position' ,[.2 .7 .3 .2]);
 box on
@@ -31,7 +31,7 @@ zo = [1.5*exp(-1i*pi/2),1.5*exp(1i*pi/2),2.5*exp(-1i*pi/2),2.5*exp(1i*pi/2),1*ex
 for ind = 1:6
 epsilon = 0.008;
 ctspan = linspace(0,6,4000)/epsilon;
-ROM=@(t,z) rom_temp_model_adiabatic(t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_01,xi_11,xi_21,Valpha,V,A,Force_Lorenz,Dalpha,gamma,epsilon);
+ROM=@(t,z) rom_temp_model_adiabatic(t,z,SSM_Coeff_A_2,SSM_Coeff_A_1,xi_01,xi_11,xi_21,Valpha,ValphaD,V,A,Force_Lorenz,Dalpha,gamma,epsilon);
 q0 = zo(ind);
 [y0,model0,Net_Sol0] = compute_SSM_phy(XI_0,XI_1,XI_2,XI_3,ctspan(1),gamma,q0,epsilon,SSM_Coeff_A_2,SSM_Coeff_A_1,Valpha,V,A,Force_Lorenz,Dalpha);
 
@@ -82,7 +82,7 @@ plot(ax2,tSP,Net_Sol(indexR,:),'-','LineWidth',3,'color',[0 0 1 0.3])
 hold on 
 % xlabel(ax2,'$t \,[$s$]$','Interpreter','latex');
 % ylabel(ax2,'$x_{c} \,[$m$]$','Interpreter','latex');
-% axis([0,50,-2,2])
+axis([0,50,-2,2])
 grid on ;
 
 NMTE = sum(sqrt(sum((y.' - SP_Traj).^2,2)))/(sqrt(max(sum((SP_Traj).^2,2)))*max(size(ctspan)));

@@ -9,7 +9,7 @@ PI = inv(P);
 TempCell = num2cell(SSM_Coeff_A_1(alpha));
 [h101,h200,h011,h110,h020,f101,f200,f011,f110,f020,h300,h030,h120,h210,f300,f030,f120,f210]=deal(TempCell{:});
 TempCell = num2cell(conj([h101,h200,h011,h110,h020,f101,f200,f011,f110,f020,h300,h030,h120,h210,f300,f030,f120,f210]));
-[hc101,hc200,hc011,hc110,hc020,fc101,fc200,fc011,fc110,fc020,hc300,hc030,hc120,hc210,fc300,fc030,fc120,fc210] = deal(TempCell{:});
+% [hc011,hc020,hc101,hc110,hc200,fc011,fc020,fc101,fc110,fc200,hc030,hc300,hc210,hc120,fc030,fc300,fc210,fc120] = deal(TempCell{:});
 TempCell = num2cell(SSM_Coeff_A_2(alpha));    
 [h012,h102,h201,h021,h111,f012,f102,f201,f021,f111] = deal(TempCell{:});
 if order == 3

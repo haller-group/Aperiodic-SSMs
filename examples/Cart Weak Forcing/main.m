@@ -75,6 +75,7 @@ xlabel('$t \,[$s$]$','Interpreter','latex');
 ylabel('$F(t) \,[$N$]$','Interpreter','latex');
 axis([0 50 -1 1])
 
+
 % set(fig1, 'Units' , 'Inches' );
 % pos = get(fig1, 'Position' );
 % set(fig1, 'PaperPositionMode' , 'Auto' , 'PaperUnits' , 'Inches' , 'PaperSize' ,[pos(3), pos(4)])
@@ -141,15 +142,44 @@ axis([0 50 -1 1])
 
 
 %%
+lambda = [D(1);conj(D(1));D(3);conj(D(3));D(5);conj(D(5))];
+positive_L = 1;
+tcalc = tspan(positive_L:end);
+Ng = 1;
+[xG,wG]=lgwt(Ng,0,tcalc(2)-tcalc(1));
+tG_new = flip(xG) + tcalc ;
+TGnew = tG_new(:);
+TGnew = TGnew(1:end-Ng).';
+etG = tcalc - tcalc(1);
+t_minus_s = (tcalc(2)-tcalc(1))-flip(xG);
+etG_minus = flip(t_minus_s) + etG;
+etGM= etG_minus(:);
+etGM = etGM(1:end-Ng).';
+WG = repmat(wG.',1,max(size(tcalc))-1);
+
+FtG  = [sparse(2*n-1,max(size(TGnew)));Force_Lorenz(TGnew.').'];
+phiG = VI*FtG;% (rearrange IMP)
+GreenPos = exp(lambda.*etGM); 
+%               GreenPos = GreenPos(find(GreenPos~=0)); 
+Explambda = GreenPos;
+eta = zeros(2*size(M,1),max(size(tcalc)));
+for j = 1:2*size(M,1)  
+    eta_d = conv(WG.*phiG(j,:),Explambda(j,:));
+    ETA_M = eta_d(Ng:Ng:max(size(TGnew)));
+    eta(j,:) = [0,ETA_M];
+end
+z = real(V*eta);
+xi_solg = z.';
+xi_full = griddedInterpolant(tcalc(:),xi_solg,'spline');
+xi_full_eval = @(xa) xi_full(xa);
+xi_sol1 = griddedInterpolant(tcalc(:),(z(1,:)).','spline');
+save('Solution_1.mat','xi_full_eval')
+
 % xs=@(t,ta) real(V*([exp(D(1)*(t-ta));conj(exp(D(1)*(t-ta)));exp(D(3)*(t-ta));conj(exp(D(3)*(t-ta)));exp(D(5)*(t-ta));conj(exp(D(5)*(t-ta)))].*(VI*[0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));Force_Lorenz(ta)])));
-% % positive_Lvec = find(tspan<-3999 & tspan>-4000);
-% % positive_L = positive_Lvec(1)-1;
-% positive_L = 1;
 % 
-% tcalc = tspan(positive_L:end);
 % N_Max = max(size(tcalc));
 % LT = [];
- start_time = [1];
+%  start_time = [1];
 % xi_sol = cell(1,max(size(start_time)));
 % 
 % tic
@@ -174,14 +204,14 @@ axis([0 50 -1 1])
 % save('Solution_1.mat','xi_full_eval')
 % 
 % xi_sol0=xi_sol{1,1};
-% xi_sol1 = griddedInterpolant(tcalc(:),(xi_sol0(1,:)).','spline');
+% xi_sol1 = griddedInterpolant(tcalc(:),(z(1,:)).','spline');
 % % xi_sol2 = @(xq) interp1(tcalc(:),(xi_sol0(2,:)).',xq,'spline');
 % % xi_sol3 = @(xq) interp1(tcalc(:),(xi_sol0(3,:)).',xq,'spline');
 % % xi_sol4 = @(xq) interp1(tcalc(:),(xi_sol0(4,:)).',xq,'spline');
 % % xi_net_sol = @(t) [xi_sol1(t);xi_sol2(t);xi_sol3(t);xi_sol4(t)];
 % save('Xi_Sol1.mat','xi_sol1')
-% 
-% 
+
+
 % xs=@(t,ta) real(V*([exp(D(1)*(t-ta));conj(exp(D(1)*(t-ta)));exp(D(3)*(t-ta));conj(exp(D(3)*(t-ta)));exp(D(5)*(t-ta));conj(exp(D(5)*(t-ta)))].*(VI*[0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));-(m1+Mf)/(m1*Mf)*gamma*xi_sol1(ta).^3;1/m1*gamma*xi_sol1(ta).^3;0*ones(1,max(size(ta)))])));
 % % positive_Lvec = find(tspan<-2999 & tspan>-3000);
 % % positive_L = positive_Lvec(1)-1;
@@ -191,7 +221,7 @@ axis([0 50 -1 1])
 % N_Max = max(size(tcalc));
 % LT = [];
 % 
-% xi_sol = cell(1,max(size(start_time)));
+% xi_sol = cell(1,max(size(1)));
 % 
 % tic
 % sol_1 = [];
@@ -217,9 +247,28 @@ axis([0 50 -1 1])
 % xi_sol0=xi_sol{1,1};
 % xi_sol3 = griddedInterpolant(tcalc(:),(xi_sol0(1,:)).','spline');
 % save('Xi_Sol3.mat','xi_sol3')
-% 
-% 
-% 
+
+FtG  = [0*ones(1,max(size(TGnew)));0*ones(1,max(size(TGnew)));0*ones(1,max(size(TGnew)));-(m1+Mf)/(m1*Mf)*gamma*xi_sol1(TGnew).^3;1/m1*gamma*xi_sol1(TGnew).^3;0*ones(1,max(size(TGnew)))];
+phiG = VI*FtG;% (rearrange IMP)
+% GreenPos = exp(lambda.*etGM); 
+%               GreenPos = GreenPos(find(GreenPos~=0)); 
+% Explambda = GreenPos;
+eta = zeros(2*size(M,1),max(size(tcalc)));
+for j = 1:2*size(M,1)  
+    eta_d = conv(WG.*phiG(j,:),Explambda(j,:));
+    ETA_M = eta_d(Ng:Ng:max(size(TGnew)));
+    eta(j,:) = [0,ETA_M];
+end
+z = real(V*eta);
+xi_solg = z.';
+xi_full = griddedInterpolant(tcalc(:),xi_solg,'spline');
+xi_full_eval3 = @(xa) xi_full(xa);
+xi_sol3 = griddedInterpolant(tcalc(:),(z(1,:)).','spline');
+save('Solution_3.mat','xi_full_eval3')
+save('Xi_Sol3.mat','xi_sol3')
+
+
+
 % xs=@(t,ta) real(V*([exp(D(1)*(t-ta));conj(exp(D(1)*(t-ta)));exp(D(3)*(t-ta));conj(exp(D(3)*(t-ta)));exp(D(5)*(t-ta));conj(exp(D(5)*(t-ta)))].*(VI*[0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));0*ones(1,max(size(ta)));3*-(m1+Mf)/(m1*Mf)*gamma*xi_sol1(ta).^2.*xi_sol3(ta);3*1/m1*gamma*xi_sol1(ta).^2.*xi_sol3(ta);0*ones(1,max(size(ta)))])));
 % % positive_Lvec = find(tspan<-2999 & tspan>-3000);
 % % positive_L = positive_Lvec(1)-1;
@@ -251,8 +300,26 @@ axis([0 50 -1 1])
 % xi_full = griddedInterpolant(tcalc(:),xi_solg,'spline');
 % xi_full_eval5 = @(xa) xi_full(xa);
 % save('Solution_5.mat','xi_full_eval5')
-% 
 
+
+FtG  = [0*ones(1,max(size(TGnew)));0*ones(1,max(size(TGnew)));0*ones(1,max(size(TGnew)));3*(-(m1+Mf)/(m1*Mf))*gamma*xi_sol1(TGnew).^2.*xi_sol3(TGnew);3*1/m1*gamma*xi_sol1(TGnew).^2.*xi_sol3(TGnew);0*ones(1,max(size(TGnew)))];
+phiG = VI*FtG;% (rearrange IMP)
+% GreenPos = exp(lambda.*etGM); 
+%               GreenPos = GreenPos(find(GreenPos~=0)); 
+% Explambda = GreenPos;
+eta = zeros(2*size(M,1),max(size(tcalc)));
+for j = 1:2*size(M,1)  
+    eta_d = conv(WG.*phiG(j,:),Explambda(j,:));
+    ETA_M = eta_d(Ng:Ng:max(size(TGnew)));
+    eta(j,:) = [0,ETA_M];
+end
+z = real(V*eta);
+xi_solg = z.';
+xi_full = griddedInterpolant(tcalc(:),xi_solg,'spline');
+xi_full_eval5 = @(xa) xi_full(xa);
+xi_sol5 = griddedInterpolant(tcalc(:),(z(1,:)).','spline');
+save('Solution_5.mat','xi_full_eval5')
+save('Xi_Sol5.mat','xi_sol5')
 
 
 
@@ -300,35 +367,76 @@ l3c = conj(D(5));
 % positive_L = positive_Lvec(1)-1;
 
 %%
-% h_coeff = @(t,ta) H_coeff_1(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
-%     ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
-%     ,xi_sol1,xi_sol3);
-% % h_coeff=@(t,ta) [-1.*exp((l2-2*l1c)*(t-ta)).*(0.14165458000082587 + 0.021169762212267226*1i).*gamma.*xi_sol1(ta);-1.*exp((l2-2*l1)*(t-ta)).*(0.12873087480450443 + 0.06278965471637281*1i).*gamma.*xi_sol1(ta);-1.*exp((l2-l1-l1c)*(t-ta)).*(0.27356993552351216 + 0.08494825393731548*1i).*gamma.*xi_sol1(ta);-1.*exp((l2-l1c)*(t-ta)).*(0.48134875190217397 + 0.11002354683308162*1i).*gamma.*xi_sol1(ta).^2;-1.*exp((l2-l1)*(t-ta)).*(0.4590070643933819 + 0.1819733954524166*1i).*gamma.*xi_sol1(ta).^2
-% % ];
-% % 
-% % 
-% % % h021 -1.*exp((l2-2*l1c)*(t-ta)).*(0.14165458000082587 + 0.021169762212267226*1i).*gamma.*xi_sol1(ta)
-% % % h201 -1.*exp((l2-2*l1)*(t-ta)).*(0.12873087480450443 + 0.06278965471637281*1i).*gamma.*xi_sol1(ta)
-% % % h111 -1.*exp((l2-l1-l1c)*(t-ta)).*(0.27356993552351216 +
-% % % 0.08494825393731548*1i).*gamma.*xi_sol1(ta)   
-% % % 
-% % % h012 -1.*exp((l2-l1c)*(t-ta)).*(0.48134875190217397 + 0.11002354683308162*1i).*gamma.*xi_sol1(ta).^2
-% % % h102 -1.*exp((l2-l1)*(t-ta)).*(0.4590070643933819 + 0.1819733954524166*1i).*gamma.*xi_sol1(ta).^2
-% % 
-% % 
+h_coeff = @(t,ta) H_coeff_1(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
+    ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
+    ,xi_sol1,xi_sol3);
+% h_coeff=@(t,ta) [-1.*exp((l2-2*l1c)*(t-ta)).*(0.14165458000082587 + 0.021169762212267226*1i).*gamma.*xi_sol1(ta);-1.*exp((l2-2*l1)*(t-ta)).*(0.12873087480450443 + 0.06278965471637281*1i).*gamma.*xi_sol1(ta);-1.*exp((l2-l1-l1c)*(t-ta)).*(0.27356993552351216 + 0.08494825393731548*1i).*gamma.*xi_sol1(ta);-1.*exp((l2-l1c)*(t-ta)).*(0.48134875190217397 + 0.11002354683308162*1i).*gamma.*xi_sol1(ta).^2;-1.*exp((l2-l1)*(t-ta)).*(0.4590070643933819 + 0.1819733954524166*1i).*gamma.*xi_sol1(ta).^2
+% ];
 % 
-% f_coeff = @(t,ta) F_coeff_1(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
-%     ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
-%     ,xi_sol1,xi_sol3);
 % 
-% % % f021 -1.*exp((l3-2*l1c)*(t-ta)).*(0.1493846984852132 - 0.03507901563128705*1i).*gamma.*xi_sol1(ta)
-% % % f201 -1.*exp((l3-2*l1)*(t-ta)).*(0.1530188850500885 + 0.011469363417641935*1i).*gamma.*xi_sol1(ta)
-% % % f111 -1.*exp((l3-l1-l1c)*(t-ta)).*(0.3059651596621337 - 0.023887716291801475*1i).*gamma.*xi_sol1(ta)
-% % % 
-% % % f012 -1.*exp((l3-l1c)*(t-ta)).*(0.5227135053304293 - 0.08129018232281629*1i).*gamma.*xi_sol1(ta).^2
-% % % f102 -1.*exp((l3-l1)*(t-ta)).*(0.5289960581546924 - 0.0008202765988769862*1i).*gamma.*xi_sol1(ta).^2
+% % h021 -1.*exp((l2-2*l1c)*(t-ta)).*(0.14165458000082587 + 0.021169762212267226*1i).*gamma.*xi_sol1(ta)
+% % h201 -1.*exp((l2-2*l1)*(t-ta)).*(0.12873087480450443 + 0.06278965471637281*1i).*gamma.*xi_sol1(ta)
+% % h111 -1.*exp((l2-l1-l1c)*(t-ta)).*(0.27356993552351216 +
+% % 0.08494825393731548*1i).*gamma.*xi_sol1(ta)   
 % % 
+% % h012 -1.*exp((l2-l1c)*(t-ta)).*(0.48134875190217397 + 0.11002354683308162*1i).*gamma.*xi_sol1(ta).^2
+% % h102 -1.*exp((l2-l1)*(t-ta)).*(0.4590070643933819 + 0.1819733954524166*1i).*gamma.*xi_sol1(ta).^2
+% 
+% 
+
+f_coeff = @(t,ta) F_coeff_1(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
+    ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
+    ,xi_sol1,xi_sol3);
+
+% % f021 -1.*exp((l3-2*l1c)*(t-ta)).*(0.1493846984852132 - 0.03507901563128705*1i).*gamma.*xi_sol1(ta)
+% % f201 -1.*exp((l3-2*l1)*(t-ta)).*(0.1530188850500885 + 0.011469363417641935*1i).*gamma.*xi_sol1(ta)
+% % f111 -1.*exp((l3-l1-l1c)*(t-ta)).*(0.3059651596621337 - 0.023887716291801475*1i).*gamma.*xi_sol1(ta)
 % % 
+% % f012 -1.*exp((l3-l1c)*(t-ta)).*(0.5227135053304293 - 0.08129018232281629*1i).*gamma.*xi_sol1(ta).^2
+% % f102 -1.*exp((l3-l1)*(t-ta)).*(0.5289960581546924 - 0.0008202765988769862*1i).*gamma.*xi_sol1(ta).^2
+% 
+% 
+
+% exp((l2-2.*l1c).*(t-ta))
+% exp((l2-2.*l1).*(t-ta))
+% exp((l2-l1c-l1).*(t-ta))
+% exp((l2-l1c).*(t-ta))
+% exp((l2-l1).*(t-ta))
+
+% exp((l3-2.*l1c).*(t-ta)).*
+% exp((l3-2.*l1).*(t-ta)).*
+% exp((l3-l1c-l1).*(t-ta)).*
+% exp((l3-l1c).*(t-ta)).*
+% exp((l3-l1).*(t-ta)).*
+
+lambdah = [l2-2*l1c;l2-2*l1;l2-l1c-l1;l2-l1c;l2-l1]; 
+GreenPos = exp(lambdah.*etGM); 
+Explambdah = GreenPos;
+
+lambdaf = [l3-2.*l1c;l3-2.*l1;l3-l1c-l1;l3-l1c;l3-l1];
+GreenPos = exp(lambdaf.*etGM); 
+Explambdaf = GreenPos;
+
+
+phiGh = h_coeff(0,TGnew);% (rearrange IMP)
+phiGf = f_coeff(0,TGnew);% (rearrange IMP)
+etah = zeros(size(phiGh,1),max(size(tcalc)));
+etaf = zeros(size(phiGf,1),max(size(tcalc)));
+for j = 1:size(phiGh,1)  
+    eta_dh = conv(WG.*phiGh(j,:),Explambdah(j,:));
+    eta_df = conv(WG.*phiGf(j,:),Explambdaf(j,:));
+    ETA_Mh = eta_dh(Ng:Ng:max(size(TGnew)));
+    ETA_Mf = eta_df(Ng:Ng:max(size(TGnew)));
+    etah(j,:) = [0,ETA_Mh];
+    etaf(j,:) = [0,ETA_Mf];
+end
+H_Coeff1=griddedInterpolant(tcalc(:),etah.','spline');
+F_Coeff1=griddedInterpolant(tcalc(:),etaf.','spline');
+save('Coeff_SSM_Exact_O1.mat','H_Coeff1','F_Coeff1');
+
+load('Coeff_SSM_Exact_O1.mat','H_Coeff1','F_Coeff1');
+
+
 % positive_L = 1;
 % tcalc = tspan(1:end);
 % N_Max = max(size(tcalc));
@@ -368,8 +476,8 @@ l3c = conj(D(5));
 % H_Coeff1=griddedInterpolant(tcalc(:),sol_1H.','spline');
 % F_Coeff1=griddedInterpolant(tcalc(:),sol_1F.','spline');
 % save('Coeff_SSM_Exact_O1.mat','H_Coeff1','F_Coeff1');
-
- load('Coeff_SSM_Exact_O1.mat','H_Coeff1','F_Coeff1');
+% 
+% load('Coeff_SSM_Exact_O1.mat','H_Coeff1','F_Coeff1');
 
 % % h021r = griddedInterpolant(tcalc(:),(sol_1rH(1,:)).','spline');
 % % h021i = griddedInterpolant(tcalc(:),(sol_1iH(1,:)).','spline');
@@ -423,14 +531,66 @@ l3c = conj(D(5));
 % % load('Coeff_SSM_NF_Exactv3.mat','f030','f300','f210','f120','f111','f021','f201','f102','f012');
 % 
 % 
-% h_coeff_2 = @(t,ta) H_coeff_2(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
-%     ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
-%     ,H_Coeff1,F_Coeff1,xi_sol1,xi_sol3);
-% 
-% f_coeff_2 = @(t,ta) F_coeff_2(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
-%     ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
-%     ,H_Coeff1,F_Coeff1,xi_sol1,xi_sol3);
-% 
+
+
+% exp((l2-4.*l1).*(t-ta)).*
+% exp((l2-4.*l1c).*(t-ta)).*
+% exp((l2-l1c-3.*l1).*(t-ta)).*
+
+% exp((l2-3.*l1c-l1).*(t-ta)).*
+
+% exp((l2-2.*l1c-2.*l1).*(t-ta)).*
+% exp((l2-3.*l1).*(t-ta)).*
+% exp((l2-3.*l1c).*(t-ta)).*
+% exp((l2-l1c-2.*l1).*(t-ta)).*
+% exp((l2-2.*l1c-l1).*(t-ta)).*
+% exp((l2-2.*l1).*(t-ta)).*
+% exp((l2-2.*l1c).*(t-ta)).*
+% exp((l2-l1c-l1).*(t-ta)).*
+% exp((l2-l1).*(t-ta)).*
+% exp((l2-l1c).*(t-ta)).*
+
+h_coeff_2 = @(t,ta) H_coeff_2(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
+    ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
+    ,H_Coeff1,F_Coeff1,xi_sol1,xi_sol3);
+
+f_coeff_2 = @(t,ta) F_coeff_2(t,ta,gamma,l1,l2,l3,l1c,h030,h120,h210,h300,f030,f120,f210,f300,hc030,hc120,hc210 ...
+    ,hc300,fc030,fc120,fc210,fc300,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,hc500,hc050,hc320,hc230,hc410,hc140,fc500,fc050,fc320,fc230,fc410,fc140...
+    ,H_Coeff1,F_Coeff1,xi_sol1,xi_sol3);
+
+lambdah = [l2-4.*l1;l2-4.*l1c;l2-l1c-3.*l1;l2-3.*l1c-l1;
+    l2-2.*l1c-2.*l1;l2-3.*l1;l2-3.*l1c;l2-l1c-2.*l1;l2-2.*l1c-l1;l2-2.*l1;
+    l2-2.*l1c;l2-l1c-l1;l2-l1;l2-l1c]; 
+
+GreenPos = exp(lambdah.*etGM); 
+Explambdah = GreenPos;
+
+lambdaf = [l3-4.*l1;l3-4.*l1c;l3-l1c-3.*l1;l3-3.*l1c-l1;l3-2.*l1c-2.*l1;l3-3.*l1;l3-3.*l1c;l3-l1c-2.*l1;l3-2.*l1c-l1;l3-2.*l1;l3-2.*l1c;l3-l1c-l1;l3-l1;l3-l1c]; 
+
+GreenPos = exp(lambdaf.*etGM); 
+Explambdaf = GreenPos;
+
+
+phiGh = h_coeff_2(0,TGnew);% (rearrange IMP)
+phiGf = f_coeff_2(0,TGnew);% (rearrange IMP)
+etah = zeros(size(phiGh,1),max(size(tcalc)));
+etaf = zeros(size(phiGf,1),max(size(tcalc)));
+for j = 1:size(phiGh,1)  
+    eta_dh = conv(WG.*phiGh(j,:),Explambdah(j,:));
+    eta_df = conv(WG.*phiGf(j,:),Explambdaf(j,:));
+    ETA_Mh = eta_dh(Ng:Ng:max(size(TGnew)));
+    ETA_Mf = eta_df(Ng:Ng:max(size(TGnew)));
+    etah(j,:) = [0,ETA_Mh];
+    etaf(j,:) = [0,ETA_Mf];
+end
+H_Coeff2=griddedInterpolant(tcalc(:),etah.','spline');
+F_Coeff2=griddedInterpolant(tcalc(:),etaf.','spline');
+save('Coeff_SSM_Exact_O2.mat','H_Coeff2','F_Coeff2');
+
+load('Coeff_SSM_Exact_O2.mat','H_Coeff2','F_Coeff2');
+
+
+
 % N_Max = max(size(tcalc));
 % sol_1rH = [];
 % sol_1iH = [];
@@ -469,8 +629,8 @@ l3c = conj(D(5));
 % H_Coeff2=griddedInterpolant(tcalc(:),sol_1H.','spline');
 % F_Coeff2=griddedInterpolant(tcalc(:),sol_1F.','spline');
 % save('Coeff_SSM_Exact_O2.mat','H_Coeff2','F_Coeff2');
-
-load('Coeff_SSM_Exact_O2.mat','H_Coeff2','F_Coeff2');
+% 
+% load('Coeff_SSM_Exact_O2.mat','H_Coeff2','F_Coeff2');
 
 % Epsilon = [0.1,0.01,0.001,0.0001];
 % NMTET = [];
@@ -479,13 +639,22 @@ load('Coeff_SSM_Exact_O2.mat','H_Coeff2','F_Coeff2');
 % epsilon = 0;    
 % Order = 3;
 % 
+
+%%
 epsilon = 0.5;
 
 ROM_ODE_ns =@(t,zk) rom_temp_model_noscale(t,zk,l1,gamma,epsilon,xi_sol1,xi_sol3,h030,h300,h210,h120,H_Coeff1,f030,f300,f210,f120,F_Coeff1);
-ctspan = linspace(0,500,8000);
+ROM_ODE_linear =@(t,zk) rom_temp_model_linear(t,zk,l1,gamma,epsilon,xi_sol1,xi_sol3,h030,h300,h210,h120,H_Coeff1,f030,f300,f210,f120,F_Coeff1);
 
-q0 = 1.2*exp(1i*0);
+ctspan = linspace(0,500,8000);
+%dy = rom_temp_model_linear(t,zk,l1,gamma,epsilon,xi_sol1,xi_sol3,h030,h300,h210,h120,H_Coeff1,f030,f300,f210,f120,F_Coeff1)
+
+q0 = 0.6*exp(1i*0);
 y0 =compute_SSM_phy(xi_full_eval5,xi_full_eval3,xi_full_eval,0,l1,l1,gamma,V,inv(V),q0,h030,h300,h210,h120,H_Coeff1,f030,f300,f210,f120,F_Coeff1,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,H_Coeff2,F_Coeff2,epsilon);
+
+q0 = 0.6*exp(1i*0);
+y0_l =compute_SSM_linear(xi_full_eval5,xi_full_eval3,xi_full_eval,0,l1,l1,gamma,V,inv(V),q0,h030,h300,h210,h120,H_Coeff1,f030,f300,f210,f120,F_Coeff1,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,H_Coeff2,F_Coeff2,epsilon);
+
 
 IC = [real(q0);imag(q0)];
 
@@ -494,9 +663,14 @@ tic
 [t_sol,ROM_sol] = ode45(ROM_ODE_ns,ctspan,IC);
 toc
 
+tic 
+[t_sol,ROM_sol_linear] = ode45(ROM_ODE_linear,ctspan,IC);
+toc
+
 lf = 0;
 [y,modal] = compute_SSM_phy(xi_full_eval5,xi_full_eval3,xi_full_eval,t_sol.',lf,ls,gamma,V,inv(V),(ROM_sol(:,1)+1i*ROM_sol(:,2)).',h030,h300,h210,h120,H_Coeff1,f030,f300,f210,f120,F_Coeff1,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,H_Coeff2,F_Coeff2,epsilon);
 
+[y_linear,modal_linear] = compute_SSM_linear(xi_full_eval5,xi_full_eval3,xi_full_eval,t_sol.',lf,ls,gamma,V,inv(V),(ROM_sol_linear(:,1)+1i*ROM_sol_linear(:,2)).',h030,h300,h210,h120,H_Coeff1,f030,f300,f210,f120,F_Coeff1,h500,h050,h320,h230,h410,h140,f500,f050,f320,f230,f410,f140,H_Coeff2,F_Coeff2,epsilon);
 
 
 
@@ -509,12 +683,16 @@ IC =  y0;
 toc
 y = y.';
 figure 
-indexR = 1;
+indexR = 3;
 plot(ctspan,SP_Traj(:,indexR),'-','LineWidth',3,'color','black')
 hold on 
 plot(ctspan,y(:,indexR),'--','LineWidth',3,'color','red')
 hold on 
+% plot(ctspan,y_linear(indexR,:),'--','LineWidth',3,'color','blue')
+% hold on
 plot(ctspan,SolutionA(:,indexR),'-','LineWidth',3,'color',[0 1 0 0.3])
+ 
+
 Rel_Errorz = (sqrt(sum((y - SP_Traj).^2,2)))/(sqrt(max(sum((SP_Traj).^2,2))));
 NMTE = sum(sqrt(sum((y - SP_Traj).^2,2)))/(sqrt(max(sum((SP_Traj).^2,2)))*max(size(ctspan)));
 

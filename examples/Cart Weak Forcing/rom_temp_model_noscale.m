@@ -10,15 +10,15 @@ u1 = z;
 u2 = conj(z);
 xi1 = xi_sol1(t);
 xi3 = xi_sol3(t);
-hc030 = conj(h030);
-hc120 = conj(h120);
-hc210 = conj(h210);
-hc300 = conj(h300);
+hc300 = conj(h030);
+hc210 = conj(h120);
+hc120 = conj(h210);
+hc030 = conj(h300);
 
-fc030 = conj(f030);
-fc120 = conj(f120);
-fc210 = conj(f210);
-fc300 = conj(f300);
+fc300 = conj(f030);
+fc210 = conj(f120);
+fc120 = conj(f210);
+fc030 = conj(f300);
 
 
 H1 =H_Coeff1(t);
@@ -54,16 +54,16 @@ f102 = F1(5,:);
 % f012=F012(t);
 
 fc111=conj(f111);
-fc021=conj(f021);
-fc201 =conj(f201);
-fc102 =conj(f102);
-fc012 = conj(f012);
+fc201=conj(f021);
+fc021 =conj(f201);
+fc012 =conj(f102);
+fc102 = conj(f012);
 
 hc111=conj(h111);
-hc021=conj(h021);
-hc201 =conj(h201);
-hc102 =conj(h102);
-hc012 = conj(h012);
+hc201=conj(h021);
+hc021 =conj(h201);
+hc012 =conj(h102);
+hc102 = conj(h012);
 
 
 du = l1.*u1 - (0.00005422941595356715 - 0.0001576591190127919.*1i).*gamma.*u1.^3 + ...
